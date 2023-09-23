@@ -1,6 +1,6 @@
 const Response=require("../helpers/Response.helpers")
 const { blogsService }=require("../services/blogs.service")
-const { uploadOnCloudinary }=require("../helpers/file-uploader");
+const { uploadOnCloudinary, uploadVideosOnCloudinary }=require("../helpers/file-uploader");
 
 class blogsController {
 
@@ -30,11 +30,15 @@ class blogsController {
 
     createBlog=async (req, res) => {
         try {
-            const uploadedImages=await uploadOnCloudinary(req.files)
-            const newBlog=await blogsService.create({ ...req.body, image: uploadedImages })
+            const imagesFiles=req.files.filter((image) => image.fieldname==='images[]');
+            const vidFiles=req.files.filter((vid) => vid.fieldname==='videos[]');
+            const uploadedImages=await uploadOnCloudinary(imagesFiles);
+            const uploadedVideos=await uploadVideosOnCloudinary(vidFiles);
+            const newBlog=await blogsService.create({ ...req.body, image: uploadedImages, video: uploadedVideos })
             Response(res).body(newBlog).message("Blog Created Successfully").send();
+            // Response(res).message("Blog Created Successfully").send();
         } catch (error) {
-            // console.log(error);
+            console.log(error);
             Response(res).status(401).error("Something Went Wrong").send();
         }
 

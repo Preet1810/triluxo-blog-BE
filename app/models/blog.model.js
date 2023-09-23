@@ -10,6 +10,9 @@ const BlogSchema=new mongoose.Schema({
     image: {
         type: Array
     },
+    video: {
+        type: Array
+    },
     content: {
         type: String
     },

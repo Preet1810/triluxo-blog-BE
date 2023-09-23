@@ -36,3 +36,33 @@ module.exports.uploadOnCloudinary=async function (files) {
         return error
     }
 }
+
+module.exports.uploadVideosOnCloudinary=async function (videoFiles) {
+    try {
+        const videoBuffers=videoFiles.map((ele) => {
+            return ele.buffer;
+        }); // Array of video buffers
+
+        const uploadedVideos=[];
+
+        for (const videoData of videoBuffers) {
+            const tempFilePath=`./temp_video_${Date.now()}.mp4`;
+
+            // Write the buffer to a temporary file
+            await writeFileAsync(tempFilePath, videoData);
+
+            const uploadResult=await cloudinary.uploader.upload(tempFilePath, {
+                resource_type: 'video',
+                public_id: '', // Set your desired public_id here
+            });
+
+            uploadedVideos.push(uploadResult.secure_url);
+            fs.unlinkSync(tempFilePath);
+        }
+
+        return uploadedVideos;
+    } catch (error) {
+        console.error('Upload error:', error);
+        return error;
+    }
+};
